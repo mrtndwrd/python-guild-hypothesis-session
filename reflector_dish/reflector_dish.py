@@ -2,6 +2,7 @@
 Very ugly and inefficient implementation of the reflector dish problem (https://adventofcode.com/2023/day/14).
 The code is not optimized and is not efficient. It is just to show how we can use hypothesis to test the code.
 """
+
 from __future__ import annotations
 from functools import cached_property
 from dataclasses import dataclass
@@ -9,6 +10,8 @@ from enum import Enum
 
 
 class Direction(Enum):
+    """Four possible directions to tilt the dish towards."""
+
     NORTH = "N"
     SOUTH = "S"
     WEST = "W"
@@ -19,36 +22,44 @@ class Direction(Enum):
 class NaiveDish:
     """
     A naive implementation of the reflector dish.
-    This allows for easy generation and manipulation of the dish.
+
+    This class does not implement any of the logic required to solve the problem.
+    Instead, it can be used to easily generate and show (valid) boards which can be
+    converted to optimized boards to solve the problem.
     """
 
-    board: list[list[str]]
+    dish: list[list[str]]
 
     @property
     def height(self) -> int:
-        return len(self.board)
+        return len(self.dish)
 
     @property
     def width(self) -> int:
-        return len(self.board[0])
+        return len(self.dish[0])
 
-    @cached_property
-    def get_load(self):
-        load = 0
-        for y, row in enumerate(self.board):
-            load += sum([self.height - y for col in row if col == "O"])
-        return load
-
-    def print_board(self):
-        for line in self.board:
+    def print_dish(self):
+        """Pretty print the dish to console."""
+        for line in self.dish:
             print("".join(line))
 
     def to_optimized(self) -> OptimizedDish:
+        """Convert the naive dish to an optimized dish."""
         return OptimizedDish(
             height=self.height,
             width=self.width,
-            rocks=[(x, y) for y, row in enumerate(self.board) for x, cell in enumerate(row) if cell == "O"],
-            unmovable={(x, y) for y, row in enumerate(self.board) for x, cell in enumerate(row) if cell == "#"},
+            rocks=[
+                (x, y)
+                for y, row in enumerate(self.dish)
+                for x, cell in enumerate(row)
+                if cell == "O"
+            ],
+            unmovable={
+                (x, y)
+                for y, row in enumerate(self.dish)
+                for x, cell in enumerate(row)
+                if cell == "#"
+            },
         )
 
 
@@ -60,6 +71,28 @@ class OptimizedDish:
     rocks: list[tuple[int, int]]
     unmovable: set[tuple[int, int]]
 
+    def to_naive(self) -> NaiveDish:
+        """Convert the optimized dish to a naive dish."""
+        dish = [["." for _ in range(self.width)] for _ in range(self.height)]
+        for x, y in self.rocks:
+            dish[y][x] = "O"
+        for x, y in self.unmovable:
+            dish[y][x] = "#"
+
+        return NaiveDish(dish=dish)
+
+    def shift(self, direction: Direction):
+        """Shift the dish in the given direction. Tilting all the rocks towards that direction."""
+        match direction:
+            case Direction.NORTH:
+                self.rocks = self._shift_north()
+            case Direction.SOUTH:
+                self.rocks = self._shift_south()
+            case Direction.WEST:
+                self.rocks = self._shift_west()
+            case Direction.EAST:
+                self.rocks = self._shift_east()
+
     def __eq__(self, value: object) -> bool:
         if not isinstance(value, OptimizedDish):
             return False
@@ -70,26 +103,6 @@ class OptimizedDish:
             and self.unmovable == value.unmovable
             and sorted(self.rocks) == sorted(value.rocks)
         )
-
-    def to_naive(self) -> NaiveDish:
-        board = [["." for _ in range(self.width)] for _ in range(self.height)]
-        for x, y in self.rocks:
-            board[y][x] = "O"
-        for x, y in self.unmovable:
-            board[y][x] = "#"
-
-        return NaiveDish(board=board)
-
-    def shift(self, direction: Direction):
-        match direction:
-            case Direction.NORTH:
-                self.rocks = self._shift_north()
-            case Direction.SOUTH:
-                self.rocks = self._shift_south()
-            case Direction.WEST:
-                self.rocks = self._shift_west()
-            case Direction.EAST:
-                self.rocks = self._shift_east()
 
     def _shift_north(self):
         new_positions = []
@@ -158,4 +171,3 @@ class OptimizedDish:
             new_positions.append((pos, y))
 
         return new_positions
-
