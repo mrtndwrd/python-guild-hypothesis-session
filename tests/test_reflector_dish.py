@@ -1,6 +1,6 @@
 from hypothesis import given, strategies as st
 
-from experiment.code import NaiveDish, OptimizedDish, Direction
+from reflector_dish.reflector_dish import NaiveDish, OptimizedDish, Direction
 
 
 # Step 1:
