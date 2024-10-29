@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "python-guild-hypothesis-session"
+version = "0.1.0"
+description = ""
+authors = ["Maarten de Waard", "Shirani Bisnajak", "Wessel Radstok"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+hypothesis = "^6.115.5"
+roman = "^4.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
