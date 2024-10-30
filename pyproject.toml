@@ -13,6 +13,7 @@ roman = "^4.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
+pytest-watch = "^4.2.0"
 
 [build-system]
 requires = ["poetry-core"]
